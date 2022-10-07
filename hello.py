@@ -1,5 +1,5 @@
 """Modules"""
-from flask import Flask, url_for, request
+from flask import Flask, url_for, request, render_template
 from markupsafe import escape
 
 app = Flask(__name__)
@@ -19,10 +19,10 @@ def hello_name(name):
 #     """Index route"""
 #     return 'Index Page'
 
-@app.route('/hello')
-def hello():
-    """Hello world route"""
-    return 'Hello, World'
+# @app.route('/hello')
+# def hello():
+#     """Hello world route"""
+#     return 'Hello, World'
 
 @app.route('/user/<username>')
 def show_user_profile(username):
@@ -71,3 +71,16 @@ with app.test_request_context():
     print(url_for('login', next='/'))
     print(url_for('profile', username='John Doe'))
     print(url_for('static', filename='style.css'))
+
+@app.route('/hello/')
+@app.route('/hello/<name>')
+def hello(name=None):
+    """Render hello.html template
+
+    Args:
+        name (string, optional): Any name or value. Defaults to None.
+
+    Returns:
+        None: Print hello.html contents
+    """
+    return render_template('hello.html', name=name)
