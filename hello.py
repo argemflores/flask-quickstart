@@ -1,5 +1,6 @@
 """Modules"""
-from flask import Flask, url_for, request, render_template, make_response, abort, redirect, session
+from flask import Flask, url_for, request, render_template,\
+    make_response, abort, redirect, session, flash
 from markupsafe import escape
 from werkzeug.utils import secure_filename
 from pandas import DataFrame
@@ -290,3 +291,14 @@ def logout():
     # remove the username from the session if it's there
     session.pop('username', None)
     return redirect(url_for('index'))
+
+@app.route('/flash')
+def flash_message():
+    """Flash message
+
+    Returns:
+        str: Flash view
+    """
+    flash('You were successfully logged in')
+
+    return render_template('flash.html')
