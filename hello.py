@@ -1,5 +1,5 @@
 """Modules"""
-from flask import Flask, url_for, request, render_template, make_response, abort, redirect
+from flask import Flask, url_for, request, render_template, make_response, abort, redirect, session
 from markupsafe import escape
 from werkzeug.utils import secure_filename
 from pandas import DataFrame
@@ -80,25 +80,25 @@ def hello(name=None):
     """
     return render_template('hello.html', name=name)
 
-@app.route('/login', methods=['POST', 'GET'])
-def login():
-    """Login
+# @app.route('/login', methods=['POST', 'GET'])
+# def login():
+#     """Login
 
-    Returns:
-        None: Print login message
-    """
-    error = None
-    if request.method == 'POST':
-        if valid_login(request.form['username'],
-                       request.form['password']):
-            return log_the_user_in(request.form['username'])
+#     Returns:
+#         None: Print login message
+#     """
+#     error = None
+#     if request.method == 'POST':
+#         if valid_login(request.form['username'],
+#                        request.form['password']):
+#             return log_the_user_in(request.form['username'])
 
-        error = 'Invalid username/password'
-    else:
-        error = 'View only'
-    # the code below is executed if the request method
-    # was GET or the credentials were invalid
-    return render_template('login.html', error=error)
+#         error = 'Invalid username/password'
+#     else:
+#         error = 'View only'
+#     # the code below is executed if the request method
+#     # was GET or the credentials were invalid
+#     return render_template('login.html', error=error)
 
 def valid_login(username, password):
     """Validate login
@@ -159,14 +159,14 @@ def test_cookies():
 
     return resp
 
-@app.route('/')
-def index():
-    """Redirect
+# @app.route('/')
+# def index():
+#     """Redirect
 
-    Returns:
-        None: Redirect page
-    """
-    return redirect(url_for('abort_page'))
+#     Returns:
+#         None: Redirect page
+#     """
+#     return redirect(url_for('abort_page'))
 
 def this_is_never_executed():
     """Print error
@@ -248,3 +248,45 @@ def users_api():
     """
     users = get_all_users()
     return [user.to_json() for user in users]
+
+# Set the secret key to some random bytes. Keep this really secret!
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+
+@app.route('/')
+def index():
+    """Index page for session
+
+    Returns:
+        str: Message
+    """
+    if 'username' in session:
+        return f'Logged in as {session["username"]}'
+    return 'You are not logged in'
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Login
+
+    Returns:
+        str: Form
+    """
+    if request.method == 'POST':
+        session['username'] = request.form['username']
+        return redirect(url_for('index'))
+    return '''
+        <form method="post">
+            <p><input type=text name=username>
+            <p><input type=submit value=Login>
+        </form>
+    '''
+
+@app.route('/logout')
+def logout():
+    """Log out
+
+    Returns:
+        str: Redirect page
+    """
+    # remove the username from the session if it's there
+    session.pop('username', None)
+    return redirect(url_for('index'))
