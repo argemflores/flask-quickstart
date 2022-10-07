@@ -1,11 +1,13 @@
 """Modules"""
 from flask import Flask, url_for, request, render_template,\
     make_response, abort, redirect, session, flash
+from flask.logging import create_logger
 from markupsafe import escape
 from werkzeug.utils import secure_filename
 from pandas import DataFrame
 
 app = Flask(__name__)
+log = create_logger(app)
 
 # @app.route("/")
 # def hello_world():
@@ -300,5 +302,18 @@ def flash_message():
         str: Flash view
     """
     flash('You were successfully logged in')
+
+    return render_template('flash.html')
+
+@app.route('/logs')
+def show_logs():
+    """Show logs
+
+    Returns:
+        str: Logs
+    """
+    log.debug('A value for debugging')
+    log.warning('A warning occurred (%d apples)', 42)
+    log.error('An error occurred')
 
     return render_template('flash.html')
