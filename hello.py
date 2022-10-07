@@ -2,6 +2,7 @@
 from flask import Flask, url_for, request, render_template, make_response, abort, redirect
 from markupsafe import escape
 from werkzeug.utils import secure_filename
+from pandas import DataFrame
 
 app = Flask(__name__)
 
@@ -122,18 +123,18 @@ def log_the_user_in(username):
     """
     return f'{username} logged in!'
 
-with app.test_request_context('/hello', method='POST'):
-    # now you can do something with the request until the
-    # end of the with block, such as basic assertions:
-    assert request.path == '/hello'
-    assert request.method == 'POST'
+# with app.test_request_context('/hello', method='POST'):
+#     # now you can do something with the request until the
+#     # end of the with block, such as basic assertions:
+#     assert request.path == '/hello'
+#     assert request.method == 'POST'
 
-with app.test_request_context():
-    # print(url_for('index'))
-    # print(url_for('login'))
-    # print(url_for('login', next='/'))
-    print(url_for('profile', username='John Doe'))
-    print(url_for('static', filename='style.css'))
+# with app.test_request_context():
+#     print(url_for('index'))
+#     print(url_for('login'))
+#     print(url_for('login', next='/'))
+#     print(url_for('profile', username='John Doe'))
+#     print(url_for('static', filename='style.css'))
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
@@ -204,3 +205,46 @@ def not_found(error):
     resp = make_response(render_template('error.html', error=error), 404)
     resp.headers['X-Something'] = 'A value'
     return resp
+
+@app.route("/me")
+def me_api():
+    """Return a JSON response
+
+    Returns:
+        dict: User description
+    """
+    user = get_current_user()
+    return {
+        "username": user.username,
+        "theme": user.theme,
+        # "image": url_for("user_image", filename=user.image),
+        "image": user.image
+    }
+
+def get_current_user():
+    """Get user
+
+    Returns:
+        dict: One user
+    """
+    return get_all_users().iloc[0]
+
+def get_all_users():
+    """Get all users
+
+    Returns:
+        list: All users
+    """
+    data = {'username': ['usr1', 'usr2'], 'theme': ['thm1', 'thm2'], 'image': ['img1', 'img2']}
+    data_frame = DataFrame(data=data)
+    return data_frame
+
+@app.route("/users")
+def users_api():
+    """Return list of users
+
+    Returns:
+        dict: List of users
+    """
+    users = get_all_users()
+    return [user.to_json() for user in users]
