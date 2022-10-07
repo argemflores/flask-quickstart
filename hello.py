@@ -1,6 +1,7 @@
 """Modules"""
 from flask import Flask, url_for, request, render_template
 from markupsafe import escape
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
@@ -133,3 +134,11 @@ with app.test_request_context():
     print(url_for('login', next='/'))
     print(url_for('profile', username='John Doe'))
     print(url_for('static', filename='style.css'))
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_file():
+    """Upload a file
+    """
+    if request.method == 'POST':
+        file = request.files['the_file']
+        file.save(f"/var/www/uploads/{secure_filename(file.filename)}")
