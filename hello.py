@@ -1,5 +1,5 @@
 """Modules"""
-from flask import Flask, url_for, request, render_template
+from flask import Flask, url_for, request, render_template, make_response
 from markupsafe import escape
 from werkzeug.utils import secure_filename
 
@@ -40,10 +40,10 @@ def show_subpath(subpath):
     """Show the subpath after /path/"""
     return f'Subpath {escape(subpath)}'
 
-@app.route('/')
-def index():
-    """Index"""
-    return 'index'
+# @app.route('/')
+# def index():
+#     """Index"""
+#     return 'index'
 
 def do_the_login():
     """Do the login"""
@@ -129,9 +129,9 @@ with app.test_request_context('/hello', method='POST'):
     assert request.method == 'POST'
 
 with app.test_request_context():
-    print(url_for('index'))
-    print(url_for('login'))
-    print(url_for('login', next='/'))
+    # print(url_for('index'))
+    # print(url_for('login'))
+    # print(url_for('login', next='/'))
     print(url_for('profile', username='John Doe'))
     print(url_for('static', filename='style.css'))
 
@@ -142,3 +142,18 @@ def upload_file():
     if request.method == 'POST':
         file = request.files['the_file']
         file.save(f"/var/www/uploads/{secure_filename(file.filename)}")
+
+@app.route('/')
+def index():
+    """Cookies
+    """
+    username = request.cookies.get('username')
+    # use cookies.get(key) instead of cookies[key] to not get a
+    # KeyError if the cookie is missing.
+
+    print(username)
+
+    resp = make_response(render_template('hello.html'))
+    resp.set_cookie('username', 'the username')
+
+    return resp
