@@ -190,3 +190,17 @@ def page_not_found(error):
         str: Page not found page
     """
     return render_template('page_not_found.html', error=error), 404
+
+@app.errorhandler(404)
+def not_found(error):
+    """Response not found error object
+
+    Args:
+        error (str): Error message
+
+    Returns:
+        Response: Response object
+    """
+    resp = make_response(render_template('error.html', error=error), 404)
+    resp.headers['X-Something'] = 'A value'
+    return resp
