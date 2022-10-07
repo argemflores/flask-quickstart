@@ -1,5 +1,5 @@
 """Modules"""
-from flask import Flask, url_for, request, render_template, make_response
+from flask import Flask, url_for, request, render_template, make_response, abort, redirect
 from markupsafe import escape
 from werkzeug.utils import secure_filename
 
@@ -143,8 +143,8 @@ def upload_file():
         file = request.files['the_file']
         file.save(f"/var/www/uploads/{secure_filename(file.filename)}")
 
-@app.route('/')
-def index():
+@app.route('/cookies')
+def test_cookies():
     """Cookies
     """
     username = request.cookies.get('username')
@@ -157,3 +157,36 @@ def index():
     resp.set_cookie('username', 'the username')
 
     return resp
+
+@app.route('/')
+def index():
+    """Redirect
+
+    Returns:
+        None: Redirect page
+    """
+    return redirect(url_for('abort_page'))
+
+def this_is_never_executed():
+    """Print error
+    """
+    print("ERROR!")
+
+@app.route('/abort_page')
+def abort_page():
+    """Abort page
+    """
+    abort(401)
+    this_is_never_executed()
+
+@app.errorhandler(404)
+def page_not_found(error):
+    """Show page not found error
+
+    Args:
+        error (str): Error message
+
+    Returns:
+        str: Page not found page
+    """
+    return render_template('page_not_found.html', error=error), 404
