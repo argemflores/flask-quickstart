@@ -1,5 +1,5 @@
 """Modules"""
-from flask import Flask, url_for
+from flask import Flask, url_for, request
 from markupsafe import escape
 
 app = Flask(__name__)
@@ -44,10 +44,21 @@ def index():
     """Index"""
     return 'index'
 
-@app.route('/login')
+def do_the_login():
+    """Do the login"""
+    return 'do the login'
+
+def show_the_login_form():
+    """Show the login form"""
+    return 'show the login form'
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    """Login"""
-    return 'login'
+    """Login using GET and POST"""
+    if request.method == 'POST':
+        return do_the_login()
+
+    return show_the_login_form()
 
 @app.route('/user/<username>')
 def profile(username):
